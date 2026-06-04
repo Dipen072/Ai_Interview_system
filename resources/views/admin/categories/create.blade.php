@@ -1,0 +1,57 @@
+@extends('layouts.app')
+
+@slot('title')
+    Create Category
+@endslot
+
+@section('content')
+<div class="container-fluid" style="max-width: 700px;">
+    <div class="mb-4">
+        <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary btn-sm mb-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Categories
+        </a>
+        <h2 class="fw-bold text-white"><i class="bi bi-tag text-indigo me-2"></i> Create Interview Category</h2>
+        <p class="text-muted-custom">Add a new technical topic or role module for mock examinations.</p>
+    </div>
+
+    <div class="card p-4">
+        <form action="{{ route('admin.categories.store') }}" method="POST">
+            @csrf
+
+            <!-- Category Name -->
+            <div class="mb-3">
+                <label for="name" class="form-label text-white fw-bold">Category Name</label>
+                <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="e.g. Python, Docker, System Design" style="background-color: #1f2937; border-color: #374151; color: #fff; padding: 10px;">
+                @error('name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- Icon Class -->
+            <div class="mb-3">
+                <label for="icon_class" class="form-label text-white fw-bold">Bootstrap Icon Class</label>
+                <input type="text" name="icon_class" id="icon_class" class="form-control @error('icon_class') is-invalid @enderror" value="{{ old('icon_class', 'bi-code-slash') }}" placeholder="e.g. bi-code-slash, bi-database, bi-gear" style="background-color: #1f2937; border-color: #374151; color: #fff; padding: 10px;">
+                <div class="form-text text-muted-custom" style="font-size: 0.75rem;">
+                    Use any standard class from <a href="https://icons.getbootstrap.com/" target="_blank" class="text-info text-decoration-none">Bootstrap Icons</a>. Examples: <code>bi-braces</code>, <code>bi-server</code>, <code>bi-chat-left-text</code>.
+                </div>
+                @error('icon_class')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+                <label for="description" class="form-label text-white fw-bold">Description</label>
+                <textarea name="description" id="description" rows="4" class="form-control @error('description') is-invalid @enderror" placeholder="Write a short summary explaining what kind of technical questions will be generated for this topic..." style="background-color: #1f2937; border-color: #374151; color: #fff; padding: 10px; resize: none;">{{ old('description') }}</textarea>
+                @error('description')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                <i class="bi bi-check2-circle me-1"></i> Save Category
+            </button>
+        </form>
+    </div>
+</div>
+@endsection

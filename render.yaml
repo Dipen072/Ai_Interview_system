@@ -1,0 +1,86 @@
+# render.yaml — Render Blueprint for AI Interview Preparation System
+# Docs: https://render.com/docs/blueprint-spec
+#
+# How to use:
+#   1. Push this file to GitHub (root of the repo)
+#   2. In Render Dashboard → New → Blueprint → connect your repo
+#   3. Render will auto-create the Database + Web Service below
+
+databases:
+  - name: ai-interview-db
+    databaseName: ai_interview_db
+    user: ai_interview_user
+    plan: free           # 90-day free PostgreSQL on Render
+
+services:
+  - type: web
+    name: ai-interview-system
+    plan: free           # Free tier (spins down after 15 min inactivity)
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon       # Choose: oregon | frankfurt | singapore | ohio
+
+    # ── Environment Variables ─────────────────────────────────────────────────
+    envVars:
+      # App settings
+      - key: APP_NAME
+        value: "AI Interview System"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        # Will be updated automatically to your Render URL after first deploy
+        value: https://ai-interview-system.onrender.com
+
+      # Auto-generated secure key on first deploy
+      - key: APP_KEY
+        generateValue: true
+
+      # Database — automatically linked from the database above
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: ai-interview-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ai-interview-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: ai-interview-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: ai-interview-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ai-interview-db
+          property: password
+
+      # Session / Cache — use file driver (no Redis needed on free tier)
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+
+      # Logging
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+
+      # AI Keys — set these manually in Render Dashboard after deploy
+      - key: GEMINI_API_KEY
+        sync: false     # Render prompts you to enter the value manually
+      - key: GEMINI_MODEL
+        value: gemini-1.5-flash
+
+      # Mail — update for your provider
+      - key: MAIL_MAILER
+        value: log       # "log" driver = emails go to logs (safe default)
