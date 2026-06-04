@@ -64,6 +64,8 @@ EXPOSE 10000
 
 # Deploy script is the entrypoint
 COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh
+# Strip Windows CRLF line endings (if developed on Windows) — must run on Linux
+RUN sed -i 's/\r$//' /start.sh \
+    && chmod +x /start.sh
 
 CMD ["/start.sh"]

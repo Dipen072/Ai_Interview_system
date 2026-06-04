@@ -1,11 +1,10 @@
-* text=auto eol=lf
+# Force Unix LF line endings for shell scripts and Docker files
+# This prevents CRLF issues when developing on Windows
+* text=auto
 
-*.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
-
-/.github export-ignore
-CHANGELOG.md export-ignore
-.styleci.yml export-ignore
+# Shell scripts MUST have LF endings (not CRLF) to run on Linux
+*.sh text eol=lf
+docker/start.sh text eol=lf
+docker/nginx.conf text eol=lf
+docker/supervisord.conf text eol=lf
+Dockerfile text eol=lf
