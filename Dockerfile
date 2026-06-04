@@ -14,7 +14,8 @@ RUN apk add --no-cache \
     libwebp-dev \
     freetype-dev \
     postgresql-dev \
-    linux-headers
+    linux-headers \
+    bash
 
 # ── PHP Extensions ────────────────────────────────────────────────────────────
 RUN docker-php-ext-configure gd \
@@ -35,8 +36,15 @@ RUN docker-php-ext-configure gd \
 # ── Composer ──────────────────────────────────────────────────────────────────
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
+# ── Runtime directories ───────────────────────────────────────────────────────
+RUN mkdir -p \
+    /var/log/nginx \
+    /var/log/supervisor \
+    /run/nginx \
+    && touch /run/nginx.pid
+
 # ── Nginx config ──────────────────────────────────────────────────────────────
-COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 
 # ── Supervisor config ─────────────────────────────────────────────────────────
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -59,13 +67,12 @@ RUN mkdir -p \
     && chmod -R 775 storage bootstrap/cache public/uploads \
     && chown -R www-data:www-data storage bootstrap/cache public/uploads
 
-# Expose port 80 (Render routes port 10000 → 80 internally via $PORT)
-EXPOSE 10000
-
-# Deploy script is the entrypoint
+# ── Entrypoint script ─────────────────────────────────────────────────────────
 COPY docker/start.sh /start.sh
-# Strip Windows CRLF line endings (if developed on Windows) — must run on Linux
+# Strip Windows CRLF line endings — critical for Linux execution
 RUN sed -i 's/\r$//' /start.sh \
     && chmod +x /start.sh
+
+EXPOSE 10000
 
 CMD ["/start.sh"]
