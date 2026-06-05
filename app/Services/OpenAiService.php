@@ -142,6 +142,43 @@ Return the evaluation strictly in the following JSON format:
         return $this->getMockEvaluation($question, $answer);
     }
 
+    public function provideGuidance(string $question, string $currentAnswer = ''): string
+    {
+        if (empty($this->apiKey)) {
+            return "Mock Guidance: Think about the core principles related to this topic. Start by defining the term and then provide an example.";
+        }
+
+        $prompt = "You are a helpful and encouraging technical interviewer. 
+The candidate is struggling with or has asked for help on the following question: '{$question}'
+Their current answer (if any) is: '{$currentAnswer}'
+
+Provide a brief, encouraging hint or explanation to guide them in the right direction without giving away the full answer completely. Keep it to 2-3 sentences max.";
+
+        try {
+            $response = Http::withToken($this->apiKey)
+                ->post("https://api.openai.com/v1/chat/completions", [
+                    'model' => $this->model,
+                    'messages' => [
+                        ['role' => 'user', 'content' => $prompt]
+                    ]
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $text = $data['choices'][0]['message']['content'] ?? '';
+                if (!empty($text)) {
+                    return trim($text);
+                }
+            }
+
+            Log::error("OpenAI API Error in guidance: " . $response->body());
+        } catch (\Exception $e) {
+            Log::error("OpenAI API Exception in guidance: " . $e->getMessage());
+        }
+
+        return "I'm having trouble connecting to my knowledge base right now, but try breaking the question down into smaller parts and explaining what you know so far.";
+    }
+
     protected function getMockQuestions(string $category, string $difficulty, int $count): array
     {
         // Reuse same helper method for consistency

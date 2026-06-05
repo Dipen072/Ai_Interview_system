@@ -74,7 +74,25 @@
 
                 <!-- Candidate Answer Area -->
                 <div class="flex-grow-1 mb-4 d-flex flex-column">
-                    <label for="answerTextarea" class="form-label text-muted-custom" style="font-size: 0.85rem;">YOUR RESPONSE</label>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label for="answerTextarea" class="form-label text-muted-custom m-0" style="font-size: 0.85rem;">YOUR RESPONSE</label>
+                        <button type="button" id="guideMeBtn" class="btn btn-sm btn-outline-info rounded-pill px-3">
+                            <i class="bi bi-lightbulb me-1"></i> Guide Me
+                        </button>
+                    </div>
+
+                    <!-- AI Guidance Alert Box (Hidden by default) -->
+                    <div id="guidanceAlert" class="alert alert-info border-info bg-info text-dark d-none shadow-sm" role="alert">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-robot fs-4 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="alert-heading fw-bold mb-1">AI Interviewer Hint</h6>
+                                <p id="guidanceText" class="mb-0 small" style="line-height: 1.5;"></p>
+                            </div>
+                            <button type="button" class="btn-close ms-auto" aria-label="Close" onclick="document.getElementById('guidanceAlert').classList.add('d-none')"></button>
+                        </div>
+                    </div>
+
                     <textarea id="answerTextarea" 
                               class="form-control flex-grow-1 font-monospace p-3" 
                               style="background-color: #0b0f19; border-color: #374151; color: #fff; line-height: 1.6; resize: none; min-height: 250px;" 
@@ -144,6 +162,9 @@
         const prevBtn = document.getElementById('prevQuestionBtn');
         const nextBtn = document.getElementById('nextQuestionBtn');
         const saveIndicator = document.getElementById('savingIndicator');
+        const guideMeBtn = document.getElementById('guideMeBtn');
+        const guidanceAlert = document.getElementById('guidanceAlert');
+        const guidanceText = document.getElementById('guidanceText');
 
         // --- Render UI for active Question Index ---
         function renderQuestion(idx) {
@@ -187,6 +208,10 @@
                     btn.classList.remove('completed');
                 }
             });
+
+            // Hide guidance when switching questions
+            guidanceAlert.classList.add('d-none');
+            guidanceText.innerHTML = '';
         }
 
         // --- Debounced Auto-Saving Handler ---
@@ -253,6 +278,44 @@
 
         // --- Event Listeners ---
         answerTextarea.addEventListener('input', triggerAutoSave);
+
+        guideMeBtn.addEventListener('click', () => {
+            const currentQuestionText = questions[currentIdx].question_text;
+            const currentAnswerText = answerTextarea.value;
+            
+            guideMeBtn.disabled = true;
+            guideMeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Thinking...';
+
+            fetch(`/interviews/${interviewId}/guidance`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    question_text: currentQuestionText,
+                    current_answer: currentAnswerText
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                guideMeBtn.disabled = false;
+                guideMeBtn.innerHTML = '<i class="bi bi-lightbulb me-1"></i> Guide Me';
+
+                if (data.success) {
+                    guidanceText.innerHTML = data.guidance.replace(/\n/g, '<br>');
+                    guidanceAlert.classList.remove('d-none');
+                } else {
+                    alert(data.error || 'Failed to get guidance. Please try again later.');
+                }
+            })
+            .catch(err => {
+                console.error("Guidance error:", err);
+                guideMeBtn.disabled = false;
+                guideMeBtn.innerHTML = '<i class="bi bi-lightbulb me-1"></i> Guide Me';
+                alert('An error occurred while requesting guidance.');
+            });
+        });
 
         prevBtn.addEventListener('click', () => {
             if (currentIdx > 0) {

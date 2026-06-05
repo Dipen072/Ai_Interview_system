@@ -34,4 +34,13 @@ interface AiServiceInterface
      *               ]
      */
     public function evaluateAnswer(string $question, string $answer): array;
+
+    /**
+     * Provide guidance or a hint for a given question if the candidate is stuck.
+     *
+     * @param string $question
+     * @param string $currentAnswer
+     * @return string
+     */
+    public function provideGuidance(string $question, string $currentAnswer = ''): string;
 }

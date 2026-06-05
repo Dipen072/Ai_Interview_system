@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/interviews/start', [InterviewController::class, 'start'])->name('interviews.start');
     Route::get('/interviews/{id}/arena', [InterviewController::class, 'arena'])->name('interviews.arena');
     Route::post('/interviews/{id}/save-answer', [InterviewController::class, 'saveAnswer'])->name('interviews.save-answer');
+    Route::post('/interviews/{id}/guidance', [InterviewController::class, 'guidance'])->name('interviews.guidance');
     Route::get('/interviews/{id}/submit', [InterviewController::class, 'submit'])->name('interviews.submit');
     Route::post('/interviews/{id}/trigger-evaluation', [InterviewController::class, 'triggerEvaluation'])->name('interviews.trigger-evaluation');
     

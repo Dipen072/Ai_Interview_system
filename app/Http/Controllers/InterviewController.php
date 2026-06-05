@@ -8,6 +8,7 @@ use App\Services\InterviewService;
 use App\Services\EvaluationService;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\InterviewRepositoryInterface;
+use App\Services\AiServiceFactory;
 use Illuminate\Http\Request;
 
 class InterviewController extends Controller
@@ -105,6 +106,36 @@ class InterviewController extends Controller
         );
 
         return response()->json(['success' => true, 'message' => 'Answer saved successfully.']);
+    }
+
+    /**
+     * Get AI guidance for the current question.
+     */
+    public function guidance(Request $request, int $id)
+    {
+        $interview = $this->interviewRepo->find($id);
+
+        if ($interview->user_id !== auth()->id() || $interview->status !== 'ongoing') {
+            return response()->json(['error' => 'Action unauthorized or interview is locked.'], 403);
+        }
+
+        $request->validate([
+            'question_text' => 'required|string',
+            'current_answer' => 'nullable|string'
+        ]);
+
+        try {
+            $aiService = AiServiceFactory::make();
+            $guidanceText = $aiService->provideGuidance(
+                $request->question_text, 
+                $request->current_answer ?? ''
+            );
+
+            return response()->json(['success' => true, 'guidance' => $guidanceText]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Guidance Error: " . $e->getMessage());
+            return response()->json(['error' => 'Failed to get guidance.'], 500);
+        }
     }
 
     /**
