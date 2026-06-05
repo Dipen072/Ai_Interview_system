@@ -137,14 +137,52 @@ class InterviewService
                     'How would you implement distributed caching in Laravel?'
                 ];
             }
+        } elseif (strtolower($category->name) === 'hr') {
+            if (strtolower($data['difficulty']) === 'easy') {
+                $pool = [
+                    'Tell me about yourself.',
+                    'What are your strengths?',
+                    'What are your weaknesses?',
+                    'Why should we hire you?',
+                    'Why do you want to work in our company?',
+                    'What do you know about our company?',
+                    'Where do you see yourself in 5 years?',
+                    'Are you willing to relocate?',
+                    'Are you comfortable with night shifts or rotational shifts?',
+                    'What motivates you to do a job?',
+                    'Why did you choose this field (IT / BCA / Engineering etc.)?',
+                    'What was your final year project?',
+                    'What challenges did you face in your project and how did you handle them?',
+                    'Are you a team player or prefer individual work?',
+                    'How do you handle pressure or deadlines?',
+                    'What are your hobbies?',
+                    'What are your salary expectations?',
+                    'Do you have any gaps in your education? If yes, why?',
+                    'What are your career goals?',
+                    'Do you have any questions for us?'
+                ];
+            } elseif (strtolower($data['difficulty']) === 'hard') {
+                $pool = [
+                    'What is something you are currently struggling with in yourself?',
+                    'If your friends describe you negatively, what would they say?',
+                    'What is your biggest failure so far, and what did you learn from it?',
+                    'What is a mistake you made recently that you regret?',
+                    'If you had to change one thing about your personality, what would it be?',
+                    'Why is there a gap in your skills compared to job requirements?',
+                    'Describe a situation where you worked under extreme pressure.',
+                    'What will you do if you are not able to complete a deadline?',
+                    'How do you manage multiple tasks with limited time?',
+                    'What will you do if your team is not cooperating?'
+                ];
+            }
+        }
+        
+        if (isset($pool)) {
+            shuffle($pool);
+            $selectedPool = array_slice($pool, 0, $data['total_questions']);
             
-            if (isset($pool)) {
-                shuffle($pool);
-                $selectedPool = array_slice($pool, 0, $data['total_questions']);
-                
-                foreach ($selectedPool as $qText) {
-                    $customQuestions[] = ['question_text' => $qText];
-                }
+            foreach ($selectedPool as $qText) {
+                $customQuestions[] = ['question_text' => $qText];
             }
         }
         
