@@ -75,7 +75,7 @@ class EvaluationService
         // Calculate overall averages
         $avgScore = $countEvaluated > 0 ? ($totalScore / $countEvaluated) : 0;
         $percentage = $avgScore * 10;
-        $durationSeconds = now()->diffInSeconds($interview->started_at);
+        $durationSeconds = abs((int) now()->diffInSeconds($interview->started_at));
 
         // Construct summary
         $overallFeedback = "Your mock interview has been evaluated. You scored " . number_format($avgScore, 1) . "/10 overall.";
