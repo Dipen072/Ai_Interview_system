@@ -48,11 +48,20 @@ else
     echo "      APP_KEY already set via environment — skipping generate."
 fi
 
+# Ensure storage directories exist and are fully writable before artisan commands
+mkdir -p /var/www/html/storage/framework/sessions \
+         /var/www/html/storage/framework/views \
+         /var/www/html/storage/framework/cache/data \
+         /var/www/html/storage/logs \
+         /var/www/html/bootstrap/cache
+
+chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true
+
 echo "[2/6] Clearing all caches..."
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
-php artisan route:clear
+php artisan config:clear || true
+php artisan cache:clear || true
+php artisan view:clear || true
+php artisan route:clear || true
 
 echo "[3/6] Running database migrations..."
 php artisan migrate --force --no-interaction
@@ -69,7 +78,8 @@ echo "[6/6] Creating storage symlink..."
 php artisan storage:link --force || true
 
 # Set correct permissions for storage after symlink
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache 2>/dev/null || true
+chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/uploads 2>/dev/null || true
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/uploads 2>/dev/null || true
 
 echo ""
 echo "✅ Deploy complete. Starting Nginx + PHP-FPM via Supervisor..."
