@@ -137,7 +137,7 @@ class InterviewService
                     'How would you implement distributed caching in Laravel?'
                 ];
             }
-        } elseif (strtolower($category->name) === 'hr') {
+        } elseif (str_contains(strtolower($category->name), 'hr')) {
             if (strtolower($data['difficulty']) === 'easy') {
                 $pool = [
                     'Tell me about yourself.',
