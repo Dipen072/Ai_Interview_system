@@ -153,9 +153,13 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             })
-            .then(response => {
+            .then(async response => {
                 if (!response.ok) {
-                    throw new Error("API call failed during evaluation.");
+                    let errData = {};
+                    try {
+                        errData = await response.json();
+                    } catch(e) {}
+                    throw new Error(errData.error || "Server responded with status: " + response.status);
                 }
                 return response.json();
             })

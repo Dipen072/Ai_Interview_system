@@ -144,6 +144,8 @@ class InterviewController extends Controller
                 'redirect_url' => route('results.show', $interview->id)
             ]);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Evaluation Error: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
             return response()->json([
                 'error' => 'Evaluation failed: ' . $e->getMessage()
             ], 500);
