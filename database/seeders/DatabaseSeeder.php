@@ -19,21 +19,25 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionSeeder::class);
 
         // 2. Create Admin User
-        $admin = User::create([
-            'name' => 'Admin System',
-            'email' => 'admin@interview.com',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now(),
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@interview.com'],
+            [
+                'name' => 'Admin System',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]
+        );
         $admin->assignRole('Admin');
 
         // 3. Create Regular User
-        $user = User::create([
-            'name' => 'John Doe',
-            'email' => 'user@interview.com',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now(),
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'user@interview.com'],
+            [
+                'name' => 'John Doe',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]
+        );
         $user->assignRole('User');
 
         // 4. Seed Categories
@@ -52,12 +56,14 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($categories as $cat) {
-            Category::create([
-                'name' => $cat['name'],
-                'slug' => Str::slug($cat['name']),
-                'description' => $cat['description'],
-                'icon_class' => $cat['icon_class']
-            ]);
+            Category::firstOrCreate(
+                ['slug' => Str::slug($cat['name'])],
+                [
+                    'name' => $cat['name'],
+                    'description' => $cat['description'],
+                    'icon_class' => $cat['icon_class']
+                ]
+            );
         }
 
         // 5. Seed System Settings
@@ -69,7 +75,13 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
-            Setting::create($setting);
+            Setting::firstOrCreate(
+                ['key' => $setting['key']],
+                [
+                    'value' => $setting['value'],
+                    'description' => $setting['description']
+                ]
+            );
         }
     }
 }

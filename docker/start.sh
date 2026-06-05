@@ -66,8 +66,8 @@ php artisan route:clear || true
 echo "[3/6] Running database migrations..."
 php artisan migrate --force --no-interaction
 
-echo "[4/6] Seeding roles & permissions (safe to re-run)..."
-php artisan db:seed --class=RolePermissionSeeder --force --no-interaction || true
+echo "[4/6] Seeding default data (roles, admin, categories, settings)..."
+php artisan db:seed --class=DatabaseSeeder --force --no-interaction || true
 
 echo "[5/6] Caching config / routes / views for performance..."
 php artisan config:cache

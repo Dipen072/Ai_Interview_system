@@ -29,15 +29,15 @@ class RolePermissionSeeder extends Seeder
 
         // Create permissions
         foreach ($permissions as $permissionName) {
-            Permission::create(['name' => $permissionName]);
+            Permission::firstOrCreate(['name' => $permissionName]);
         }
 
         // Create Admin role and assign all permissions
-        $adminRole = Role::create(['name' => 'Admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
         $adminRole->givePermissionTo(Permission::all());
 
         // Create User role and assign specific permissions
-        $userRole = Role::create(['name' => 'User']);
+        $userRole = Role::firstOrCreate(['name' => 'User']);
         $userRole->givePermissionTo([
             'take_interviews',
             'view_results',
